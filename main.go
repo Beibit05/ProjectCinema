@@ -2,7 +2,9 @@ package main
 
 import (
 	"ProjectCinema/config"
+	"ProjectCinema/routes"
 	"fmt"
+	"github.com/gin-gonic/gin"
 )
 
 //TIP <p>To run your code, right-click the code and select <b>Run</b>.</p> <p>Alternatively, click
@@ -11,5 +13,9 @@ import (
 func main() {
 	fmt.Println("Hello Cinema")
 	config.InitDB()
-	
+
+	r := gin.Default()
+	routes.SetupRoutes(r)
+	_ = r.Run("localhost:8086")
+
 }

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"ProjectCinema/config"
 	"ProjectCinema/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,28 +18,50 @@ func GetAllFilms(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "5"))
 	category := c.Query("cate")
 	author := c.Query("author")
+	var films []models.Film
+	query := config.DB.Model(&models.Film{})
 
-	var filterFilms []models.Film
-	for _, film := range films {
-		if (category == "" || strconv.Itoa(film.Genre) == category) &&
-			(author == "" || strconv.Itoa(film.Genre) == author) {
-			filterFilms = append(filterFilms, film)
-		}
+	// Фильтрация
+	if category != "" {
+		categoryInt, _ := strconv.Atoi(category)
+		query = query.Where("genre = ?", categoryInt)
+	}
+	if author != "" {
+		authorInt, _ := strconv.Atoi(author)
+		query = query.Where("genre = ?", authorInt)
 	}
 
-	start := (page - 1) * limit
-	end := page + limit
-
-	if page >= len(filterFilms) {
-		c.JSON(200, []models.Film{})
+	// Пагинация
+	offset := (page - 1) * limit
+	if err := query.Offset(offset).Limit(limit).Find(&films).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	//var filterFilms []models.Film
+	//for _, film := range films {
+	//	if (category == "" || strconv.Itoa(film.Genre) == category) &&
+	//		(author == "" || strconv.Itoa(film.Genre) == author) {
+	//		filterFilms = append(filterFilms, film)
+	//	}
+	//}
+	//if err := config.DB.Find(&filterFilms).Error; err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+	//	return
+	//}
+	//
+	//start := (page - 1) * limit
+	//end := page + limit
+	//
+	//if page >= len(filterFilms) {
+	//	c.JSON(200, []models.Film{})
+	//	return
+	//}
+	//
+	//if limit > len(filterFilms) {
+	//	limit = len(filterFilms)
+	//}
 
-	if limit > len(filterFilms) {
-		limit = len(filterFilms)
-	}
-
-	c.JSON(200, filterFilms[start:end])
+	c.JSON(200, films)
 }
 
 func CreateFilms(c *gin.Context) {
@@ -47,99 +70,63 @@ func CreateFilms(c *gin.Context) {
 		c.JSON(400, gin.H{"Error": err.Error()})
 		return
 	}
-	startId := len(films) + 1
-	for i := range newFilms {
-		newFilms[i].Id = startId + i
-		films = append(films, newFilms[i])
+
+	if err := config.DB.Create(&newFilms).Error; err != nil {
+		c.JSON(500, gin.H{"Error": err.Error()})
+		return
 	}
-	c.JSON(200, newFilms)
+
+	c.JSON(http.StatusCreated, newFilms)
 }
 
 func GetById(c *gin.Context) {
-	paramId := c.Param("id")
-	id, err := strconv.Atoi(paramId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid id films"})
-		return
-	}
 	var oneFilms models.Film
-	found := false
-	mu.Lock()
-	for _, film := range films {
-		if film.Id == id {
-			oneFilms = film
-			found = true
-			break
-		}
-	}
-	mu.Unlock()
+	paramId := c.Param("id")
 
-	if !found {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "Film not found "})
+	if err := config.DB.First(&oneFilms, paramId).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Film not found"})
 		return
 	}
 	c.JSON(200, gin.H{"This film": oneFilms})
 }
 func UpdateFilms(c *gin.Context) {
 	idParam := c.Param("id")
-	idB, err := strconv.Atoi(idParam)
-
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid film id"})
+	var oldFilm models.Film
+	if err := config.DB.First(&oldFilm, idParam).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Film not found"})
 		return
 	}
-	var oldFilm models.Film
-	found := -1
-	mu.Lock()
-	for i, film := range films {
-		if film.Id == idB {
-			oldFilm = film
-			found = i
-			break
-		}
-	}
-	mu.Unlock()
-	if found == -1 {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "Film not found"})
+	var film models.Film
+	if err := config.DB.First(&film, idParam).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Film not found"})
 		return
 	}
 	var updateFilm models.Film
-
 	if err := c.ShouldBindJSON(&updateFilm); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
-	mu.Lock()
-	updateFilm.Id = films[found].Id
-	films[found] = updateFilm
-	mu.Unlock()
-	c.JSON(http.StatusOK, gin.H{"message": "Book updated Successfully!",
-		"OldBook":    oldFilm,
-		"UpdateBook": films[found]})
+	film.Id = updateFilm.Id
+	film.Title = updateFilm.Title
+	film.Genre = updateFilm.Genre
+	film.Description = updateFilm.Description
+	film.Duration = updateFilm.Duration
+	film.VideoURL = updateFilm.VideoURL
+
+	if err := config.DB.Save(&film).Error; err != nil {
+		c.JSON(500, gin.H{"Error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Film updated Successfully!",
+		"OldFilm":    oldFilm,
+		"UpdateFilm": film})
 }
 
 func DeleteFilms(c *gin.Context) {
 	idParam := c.Param("id")
-	id, err := strconv.Atoi(idParam)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid Book id"})
-	}
-	var newFilms []models.Film
-	found := false
-	mu.Lock()
-	defer mu.Unlock()
-	for _, film := range films {
-		if film.Id == id {
-			found = true
-			continue
-		}
-		newFilms = append(newFilms, film)
-	}
-	if !found {
-		c.JSON(http.StatusBadRequest, gin.H{"Error": "Book not found"})
+	if err := config.DB.Delete(&models.Film{}, idParam).Error; err != nil {
+		c.JSON(500, gin.H{"Error": "Film not found"})
 		return
 	}
-	films = newFilms
-
-	c.JSON(http.StatusOK, gin.H{"message": "Book deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Film deleted successfully"})
 }
