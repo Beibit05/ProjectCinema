@@ -16,22 +16,20 @@ var mu sync.Mutex
 func GetAllFilms(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "5"))
-	category := c.Query("cate")
-	author := c.Query("author")
+	genre := c.Query("genre")
+	//author := c.Query("author")
 	var films []models.Film
 	query := config.DB.Model(&models.Film{})
 
-	// Фильтрация
-	if category != "" {
-		categoryInt, _ := strconv.Atoi(category)
-		query = query.Where("genre = ?", categoryInt)
+	if genre != "" {
+		genreInt, _ := strconv.Atoi(genre)
+		query = query.Where("genre = ?", genreInt)
 	}
-	if author != "" {
-		authorInt, _ := strconv.Atoi(author)
-		query = query.Where("genre = ?", authorInt)
-	}
+	//if author != "" {
+	//	authorInt, _ := strconv.Atoi(author)
+	//	query = query.Where("genre = ?", authorInt)
+	//}
 
-	// Пагинация
 	offset := (page - 1) * limit
 	if err := query.Offset(offset).Limit(limit).Find(&films).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

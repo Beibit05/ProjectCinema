@@ -14,4 +14,13 @@ func SetupRoutes(r *gin.Engine) {
 		films.PUT("/:id", handlers.UpdateFilms)
 		films.DELETE("/:id", handlers.DeleteFilms)
 	}
+
+	genre := r.Group("/genres")
+	{
+		genre.GET("/", handlers.GetAllGenres)
+		genre.POST("/", handlers.CreateGenre)
+		genre.GET("/:id", handlers.GetGenreByID)
+		genre.PUT("/:id", handlers.UpdateGenre)
+		genre.DELETE("/:id", handlers.DeleteGenre)
+	}
 }
