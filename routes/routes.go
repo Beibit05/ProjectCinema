@@ -2,11 +2,17 @@ package routes
 
 import (
 	"ProjectCinema/handlers"
+	"ProjectCinema/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRoutes(r *gin.Engine) {
-	films := r.Group("/films")
+	r.POST("/register", handlers.Register)
+	r.POST("/login", handlers.Login)
+	authorized := r.Group("/")
+	authorized.Use(middlewares.Authmiddleware())
+
+	films := authorized.Group("/films")
 	{
 		films.GET("/", handlers.GetAllFilms)
 		films.POST("/", handlers.CreateFilms)
@@ -15,7 +21,7 @@ func SetupRoutes(r *gin.Engine) {
 		films.DELETE("/:id", handlers.DeleteFilms)
 	}
 
-	genre := r.Group("/genres")
+	genre := authorized.Group("/genres")
 	{
 		genre.GET("/", handlers.GetAllGenres)
 		genre.POST("/", handlers.CreateGenre)

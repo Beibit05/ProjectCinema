@@ -22,7 +22,7 @@ func InitDB() {
 	}
 	DB = db
 
-	err = db.AutoMigrate(&models.Film{}, &models.Genre{}, &models.Director{})
+	err = db.AutoMigrate(&models.Film{}, &models.Genre{}, &models.Director{}, models.User{})
 	if err != nil {
 		log.Fatal("Migration filed", err)
 	}
