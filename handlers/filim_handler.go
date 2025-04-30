@@ -35,29 +35,6 @@ func GetAllFilms(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	//var filterFilms []models.Film
-	//for _, film := range films {
-	//	if (category == "" || strconv.Itoa(film.Genre) == category) &&
-	//		(author == "" || strconv.Itoa(film.Genre) == author) {
-	//		filterFilms = append(filterFilms, film)
-	//	}
-	//}
-	//if err := config.DB.Find(&filterFilms).Error; err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
-	//	return
-	//}
-	//
-	//start := (page - 1) * limit
-	//end := page + limit
-	//
-	//if page >= len(filterFilms) {
-	//	c.JSON(200, []models.Film{})
-	//	return
-	//}
-	//
-	//if limit > len(filterFilms) {
-	//	limit = len(filterFilms)
-	//}
 
 	c.JSON(200, films)
 }
@@ -104,12 +81,13 @@ func UpdateFilms(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Error": err.Error()})
 		return
 	}
-	film.Id = updateFilm.Id
+	film.ID = updateFilm.ID
 	film.Title = updateFilm.Title
-	film.Genre = updateFilm.Genre
+	film.GenreID = updateFilm.GenreID
 	film.Description = updateFilm.Description
-	film.Duration = updateFilm.Duration
-	film.VideoURL = updateFilm.VideoURL
+	film.DurationMinutes = updateFilm.DurationMinutes
+	film.DirectorID = updateFilm.DirectorID
+	film.ReleaseYear = updateFilm.ReleaseYear
 
 	if err := config.DB.Save(&film).Error; err != nil {
 		c.JSON(500, gin.H{"Error": err.Error()})

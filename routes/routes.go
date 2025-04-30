@@ -29,4 +29,13 @@ func SetupRoutes(r *gin.Engine) {
 		genre.PUT("/:id", handlers.UpdateGenre)
 		genre.DELETE("/:id", handlers.DeleteGenre)
 	}
+	director := authorized.Group("/directors")
+	{
+		director.GET("/", handlers.GetAllDirector)
+		director.POST("/", handlers.CreateDirector)
+		director.GET("/:id", handlers.GetDirectorByID)
+		director.PUT("/:id", handlers.UpdateDirector)
+		director.DELETE("/:id", handlers.DeleteDirector)
+	}
+
 }

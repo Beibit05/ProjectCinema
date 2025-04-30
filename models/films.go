@@ -1,10 +1,14 @@
 package models
 
+import "time"
+
 type Film struct {
-	Id          uint   `gorm:"primaryKey"  json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Genre       uint   `json:"genre"`
-	Duration    int    `json:"duration"`
-	VideoURL    string `json:"video_url"`
+	ID              int       `json:"id" gorm:"primaryKey"`
+	Title           string    `json:"title"`
+	Description     string    `json:"description"`
+	GenreID         int       `json:"genre_id"`
+	DirectorID      int       `json:"director_id"`
+	DurationMinutes int       `json:"duration_minutes"`
+	ReleaseYear     int       `json:"release_year"`
+	CreatedAt       time.Time `json:"created_at"`
 }

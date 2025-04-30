@@ -27,7 +27,7 @@ func GetGenreByID(c *gin.Context) {
 }
 
 func CreateGenre(c *gin.Context) {
-	var genre models.Genre
+	var genre []models.Genre
 	if err := c.ShouldBindJSON(&genre); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
