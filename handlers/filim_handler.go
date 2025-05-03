@@ -3,6 +3,7 @@ package handlers
 import (
 	"ProjectCinema/config"
 	"ProjectCinema/models"
+	"ProjectCinema/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -11,33 +12,46 @@ import (
 
 var films []models.Film
 
-var mu sync.Mutex
-
 func GetAllFilms(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "5"))
 	genre := c.Query("genre")
-	//author := c.Query("author")
-	var films []models.Film
-	query := config.DB.Model(&models.Film{})
 
-	if genre != "" {
-		genreInt, _ := strconv.Atoi(genre)
-		query = query.Where("genre = ?", genreInt)
-	}
-	//if author != "" {
-	//	authorInt, _ := strconv.Atoi(author)
-	//	query = query.Where("genre = ?", authorInt)
-	//}
-
-	offset := (page - 1) * limit
-	if err := query.Offset(offset).Limit(limit).Find(&films).Error; err != nil {
+	films, err := service.FetchFilmsFromDB(page, limit, genre)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	c.JSON(200, films)
 }
+
+var mu sync.Mutex
+
+//func GetAllFilms(c *gin.Context) {
+//	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+//	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "5"))
+//	genre := c.Query("genre")
+//	//author := c.Query("author")
+//	var films []models.Film
+//	query := config.DB.Model(&models.Film{})
+//
+//	if genre != "" {
+//		genreInt, _ := strconv.Atoi(genre)
+//		query = query.Where("genre = ?", genreInt)
+//	}
+//	//if author != "" {
+//	//	authorInt, _ := strconv.Atoi(author)
+//	//	query = query.Where("genre = ?", authorInt)
+//	//}
+//
+//	offset := (page - 1) * limit
+//	if err := query.Offset(offset).Limit(limit).Find(&films).Error; err != nil {
+//		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+//		return
+//	}
+//
+//	c.JSON(200, films)
+//}
 
 func CreateFilms(c *gin.Context) {
 	var newFilms []models.Film
