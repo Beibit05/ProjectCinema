@@ -51,3 +51,28 @@ func Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
+
+type LoginPayload struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+//func LoginHandler(c *gin.Context) {
+//	var loginData LoginPayload
+//	if err := c.ShouldBindJSON(&loginData); err != nil {
+//		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+//		return
+//	}
+//
+//	client := resty.New()
+//	resp, err := client.R().
+//		SetBody(loginData).
+//		Post("http://localhost:8081/login") // Бұл — auth-service логикасы
+//
+//	if err != nil || resp.StatusCode() != http.StatusOK {
+//		c.JSON(http.StatusUnauthorized, gin.H{"error": "Login failed"})
+//		return
+//	}
+//
+//	c.Data(resp.StatusCode(), "application/json", resp.Body())
+//}

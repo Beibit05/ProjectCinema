@@ -3,6 +3,7 @@ package routes
 import (
 	"ProjectCinema/handlers"
 	"ProjectCinema/middlewares"
+	"ProjectCinema/utils"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,6 +37,14 @@ func SetupRoutes(r *gin.Engine) {
 		director.GET("/:id", handlers.GetDirectorByID)
 		director.PUT("/:id", handlers.UpdateDirector)
 		director.DELETE("/:id", handlers.DeleteDirector)
+	}
+
+	utils.InitResty()
+	client := r.Group("/clients")
+	{
+		client.POST("/register", handlers.RegisterUser)
+		client.POST("/login", handlers.LoginUser)
+		client.POST("/order", handlers.CreateOrder)
 	}
 
 }

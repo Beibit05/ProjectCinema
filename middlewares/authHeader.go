@@ -22,7 +22,6 @@ func Authmiddleware() gin.HandlerFunc {
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return utils.JwtKey, nil
-
 		})
 
 		if err != nil || !token.Valid {
