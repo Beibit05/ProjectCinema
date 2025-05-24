@@ -27,9 +27,9 @@ CREATE TABLE films (
 
 CREATE TABLE users (
                        id SERIAL PRIMARY KEY,
-                       username TEXT NOT NULL,  -- gorm:"column=name"
+                       username TEXT NOT NULL,
                        email TEXT UNIQUE NOT NULL,
-                       password TEXT NOT NULL,  -- gorm:"column=password_hash"
+                       password TEXT NOT NULL,
                        role TEXT NOT NULL,
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

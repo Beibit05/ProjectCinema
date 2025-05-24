@@ -3,7 +3,7 @@ package handlers
 import (
 	"ProjectCinema/config"
 	"ProjectCinema/models"
-	"ProjectCinema/service"
+	"ProjectCinema/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -17,7 +17,7 @@ func GetAllFilms(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "5"))
 	genre := c.Query("genre")
 
-	films, err := service.FetchFilmsFromDB(page, limit, genre)
+	films, err := services.FetchFilmsFromDB(page, limit, genre)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

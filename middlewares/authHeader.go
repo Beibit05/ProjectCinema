@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Authmiddleware() gin.HandlerFunc {
+func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 
@@ -29,6 +29,15 @@ func Authmiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid claims"})
+			c.Abort()
+			return
+		}
+
+		c.Set("username", claims["username"])
+		c.Set("role", claims["role"])
 
 		c.Next()
 	}

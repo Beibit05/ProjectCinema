@@ -1,0 +1,22 @@
+# Go binary файлдары
+main
+user-service
+order-service
+projectcinema
+
+# IDE, жүйелік және уақытша файлдар
+.vscode/
+.idea/
+*.log
+*.tmp
+*.out
+*.exe
+*.swp
+
+# Git
+.git/
+.gitignore
+
+# Go кэші
+/pkg
+/bin
