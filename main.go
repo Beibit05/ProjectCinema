@@ -16,6 +16,6 @@ func main() {
 
 	r := gin.Default()
 	routes.SetupRoutes(r)
-	_ = r.Run("localhost:8086")
+	_ = r.Run(":8086")
 
 }
